@@ -1,6 +1,6 @@
-# 🍳 Automatización de Reportes de Desayunos: Cloudbeds → F&B
+# 🍳🛏️ Hotel Ops Extractor: Cloudbeds → F&B y Housekeeping
 
-Una herramienta híbrida **JavaScript + Python** con enfoque *Human-in-the-loop* que elimina el trabajo manual de data entry y limpieza de reportes en hotelería. Resuelve un problema logístico cotidiano del área de Alimentos y Bebidas (F&B): saber exactamente quién tiene el desayuno incluido en su reserva.
+Una herramienta híbrida **JavaScript + Python** con enfoque *Human-in-the-loop* que elimina el trabajo manual de data entry y limpieza de reportes en hotelería. Resuelve dos problemas logísticos cotidianos: saber exactamente quién tiene el desayuno incluido en su reserva, y del área de Housekeeping: interpretar requerimientos de armado de camas escritos como notas de texto libre.
 
 > **Impacto Comercial:** Transforma un proceso tedioso de conciliación manual y limpieza de Excel en una ejecución guiada de **3 minutos**.
 
@@ -12,7 +12,7 @@ Una herramienta híbrida **JavaScript + Python** con enfoque *Human-in-the-loop*
 El auditor nocturno debía descargar el *Reporte de Huéspedes Hospedados* desde Cloudbeds, limpiar y maquetar el Excel manualmente (borrar columnas innecesarias, ajustar anchos, reformatear celdas), y luego revisar fila por fila para determinar qué huéspedes tenían el desayuno incluido y cuáles no. Un proceso lento, repetitivo y propenso a errores humanos, que debía repetirse cada noche.
 
 **La Solución:**
-Un sistema en dos capas que captura los datos directamente desde la interfaz de Cloudbeds mientras el auditor navega con normalidad, y los procesa automáticamente en un Excel listo para imprimir.
+Un sistema en dos capas que captura los datos directamente desde la interfaz de Cloudbeds mientras el auditor navega con normalidad, y los procesa automáticamente bifurcando la información en dos Excel listos para imprimir: uno para Desayunos y otro para Bedding.
 
 ---
 
@@ -39,14 +39,14 @@ El sistema tiene dos componentes que trabajan en secuencia:
 └────────────┬────────────────┘
              │
              ▼
-    [Excel F&B — listo para imprimir]
+    [Excel F&B] y [Excel Bedding]
 ```
 
 *   **Frontend (Tampermonkey/JS):** Script inyectado en el navegador que crea un widget flotante. A medida que el auditor navega por las reservas en Cloudbeds, el script captura en segundo plano la información de notas y requerimientos de cada huésped. Al finalizar, exporta un archivo `Audibot_Data_Cruda.csv`.
 
 ![Widget flotante en Cloudbeds](assets/widget_capture.png)
 
-*   **Backend (Python + openpyxl):** Motor que lee el CSV, cruza los datos, aplica la lógica de negocio (quién tiene desayuno incluido según el tipo de tarifa o nota de reserva) y genera el reporte final formateado.
+*   **Backend (Python + openpyxl):** Motor que lee el CSV, cruza los datos, aplica la lógica de negocio (quién tiene desayuno incluido según el tipo de tarifa o nota de reserva) y genera el reporte final formateado. Además, incluye un módulo de NLP/Regex que interpreta la intención de las notas de texto libre para definir el armado de camas (matrimonial, twin, cuna), solicitando intervención del usuario por consola solo en casos ambiguos o habitaciones bloqueadas.
 
 ---
 
@@ -71,6 +71,8 @@ Registros: 97 | Con Desayuno: 58 | Sin Desayuno: 39
 Se genera automáticamente un Excel con formato condicional, anchos de columna optimizados y diseño listo para imprimir, que se entrega al área de F&B al inicio del día.
 
 ![Reporte de desayunos generado](assets/output_desayunos.jpeg)
+
+![Reporte de bedding generado](assets/output_bedding.jpeg)
 
 ---
 
