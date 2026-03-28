@@ -44,6 +44,8 @@ El sistema tiene dos componentes que trabajan en secuencia:
 
 *   **Frontend (Tampermonkey/JS):** Script inyectado en el navegador que crea un widget flotante. A medida que el auditor navega por las reservas en Cloudbeds, el script captura en segundo plano la información de notas y requerimientos de cada huésped. Al finalizar, exporta un archivo `Audibot_Data_Cruda.csv`.
 
+![Widget flotante en Cloudbeds](assets/widget_capture.png)
+
 *   **Backend (Python + openpyxl):** Motor que lee el CSV, cruza los datos, aplica la lógica de negocio (quién tiene desayuno incluido según el tipo de tarifa o nota de reserva) y genera el reporte final formateado.
 
 ---
@@ -67,6 +69,8 @@ Registros: 97 | Con Desayuno: 58 | Sin Desayuno: 39
 
 **Paso 4 — Output Final**
 Se genera automáticamente un Excel con formato condicional, anchos de columna optimizados y diseño listo para imprimir, que se entrega al área de F&B al inicio del día.
+
+![Reporte de desayunos generado](assets/output_desayunos.jpeg)
 
 ---
 
