@@ -1,106 +1,106 @@
-# 🍳🛏️ Hotel Ops Extractor: Cloudbeds → F&B y Housekeeping
+# 🍳🛏️ Hotel Ops Extractor: Cloudbeds → F&B & Housekeeping
 
-Una herramienta híbrida **JavaScript + Python** con enfoque *Human-in-the-loop* que elimina el trabajo manual de data entry y limpieza de reportes en hotelería. Resuelve dos problemas logísticos cotidianos: saber exactamente quién tiene el desayuno incluido en su reserva, y del área de Housekeeping: interpretar requerimientos de armado de camas escritos como notas de texto libre.
+A hybrid **JavaScript + Python** tool with a *Human-in-the-loop* approach that eliminates manual data entry and report cleanup in hotel operations. It solves two daily logistical problems: knowing exactly which guests have breakfast included in their reservation, and for the Housekeeping department: interpreting bed setup requirements written as free-text notes.
 
-> **Impacto Comercial:** Transforma un proceso tedioso de conciliación manual y limpieza de Excel en una ejecución guiada de **3 minutos**.
-
----
-
-## 🚀 El Problema vs. La Solución
-
-**El Problema:**
-El auditor nocturno debía descargar el *Reporte de Huéspedes Hospedados* desde Cloudbeds, limpiar y maquetar el Excel manualmente (borrar columnas innecesarias, ajustar anchos, reformatear celdas), y luego revisar fila por fila para determinar qué huéspedes tenían el desayuno incluido y cuáles no. Un proceso lento, repetitivo y propenso a errores humanos, que debía repetirse cada noche.
-
-**La Solución:**
-Un sistema en dos capas que captura los datos directamente desde la interfaz de Cloudbeds mientras el auditor navega con normalidad, y los procesa automáticamente bifurcando la información en dos Excel listos para imprimir: uno para Desayunos y otro para Bedding.
+> **Commercial Impact:** Transforms a tedious manual reconciliation and Excel cleanup process into a guided execution of **3 minutes**.
 
 ---
 
-## 🏗️ Arquitectura Híbrida (JS + Python)
+## 🚀 The Problem vs. The Solution
 
-El sistema tiene dos componentes que trabajan en secuencia:
+**The Problem:**
+The night auditor had to download the *Hosted Guests Report* from Cloudbeds, manually clean and format the Excel (delete unnecessary columns, adjust widths, reformat cells), and then review row by row to determine which guests had breakfast included and which did not. A slow, repetitive process prone to human error, repeated every night.
+
+**The Solution:**
+A two-layer system that captures data directly from the Cloudbeds interface while the auditor browses normally, and automatically processes it by splitting the information into two print-ready Excel files: one for Breakfast and one for Bedding.
+
+---
+
+## 🏗️ Hybrid Architecture (JS + Python)
+
+The system has two components that work in sequence:
 
 ```
 [Cloudbeds Web UI]
        │
        ▼
 ┌─────────────────────────────┐
-│  CAPA 1 — Frontend          │
-│  Script Tampermonkey (JS)   │
-│  Widget flotante inyectado  │
-│  en el navegador            │
+│  LAYER 1 — Frontend         │
+│  Tampermonkey Script (JS)   │
+│  Floating widget injected   │
+│  into the browser           │
 └────────────┬────────────────┘
              │  Audibot_Data_Cruda.csv
              ▼
 ┌─────────────────────────────┐
-│  CAPA 2 — Backend           │
-│  Motor Python               │
+│  LAYER 2 — Backend          │
+│  Python Engine              │
 │  MAQUETAR_REPORTS.bat       │
 └────────────┬────────────────┘
              │
              ▼
-    [Excel F&B] y [Excel Bedding]
+    [F&B Excel] and [Bedding Excel]
 ```
 
-*   **Frontend (Tampermonkey/JS):** Script inyectado en el navegador que crea un widget flotante. A medida que el auditor navega por las reservas en Cloudbeds, el script captura en segundo plano la información de notas y requerimientos de cada huésped. Al finalizar, exporta un archivo `Audibot_Data_Cruda.csv`.
+*   **Frontend (Tampermonkey/JS):** Script injected into the browser that creates a floating widget. As the auditor browses reservations in Cloudbeds, the script captures each guest's notes and requirements in the background. When finished, it exports an `Audibot_Data_Cruda.csv` file.
 
-![Widget flotante en Cloudbeds](assets/widget_capture.png)
+![Floating widget in Cloudbeds](assets/widget_capture.png)
 
-*   **Backend (Python + openpyxl):** Motor que lee el CSV, cruza los datos, aplica la lógica de negocio (quién tiene desayuno incluido según el tipo de tarifa o nota de reserva) y genera el reporte final formateado. Además, incluye un módulo de NLP/Regex que interpreta la intención de las notas de texto libre para definir el armado de camas (matrimonial, twin, cuna), solicitando intervención del usuario por consola solo en casos ambiguos o habitaciones bloqueadas.
+*   **Backend (Python + openpyxl):** Engine that reads the CSV, cross-references the data, applies the business logic (who has breakfast included based on rate type or reservation note) and generates the final formatted report. It also includes an NLP/Regex module that interprets the intent of free-text notes to define bed setup (double, twin, crib), requesting user input via console only in ambiguous cases or blocked rooms.
 
 ---
 
-## 📋 Flujo de Trabajo (Paso a Paso)
+## 📋 Workflow (Step by Step)
 
-El proceso completo sigue cuatro pasos guiados:
+The complete process follows four guided steps:
 
-**Paso 1 — Captura de datos (JS)**
-El auditor navega por el listado de reservas en Cloudbeds. El widget flotante del script captura automáticamente los datos relevantes de cada reserva en segundo plano.
+**Step 1 — Data Capture (JS)**
+The auditor browses the reservation list in Cloudbeds. The floating widget automatically captures the relevant data from each reservation in the background.
 
-**Paso 2 — Exportar CSV**
-Con un clic en el widget, el script genera y descarga el archivo `Audibot_Data_Cruda.csv` con toda la información capturada.
+**Step 2 — Export CSV**
+With one click on the widget, the script generates and downloads the `Audibot_Data_Cruda.csv` file with all captured information.
 
-**Paso 3 — Procesamiento (Python)**
-El auditor mueve el CSV a la carpeta del sistema y ejecuta `MAQUETAR_REPORTS.bat`. El motor Python procesa los datos y muestra un resumen en tiempo real en la consola:
+**Step 3 — Processing (Python)**
+The auditor moves the CSV to the system folder and runs `MAQUETAR_REPORTS.bat`. The Python engine processes the data and displays a real-time summary in the console:
 
 ```
-Registros: 97 | Con Desayuno: 58 | Sin Desayuno: 39
+Records: 97 | With Breakfast: 58 | Without Breakfast: 39
 ```
 
-**Paso 4 — Output Final**
-Se genera automáticamente un Excel con formato condicional, anchos de columna optimizados y diseño listo para imprimir, que se entrega al área de F&B al inicio del día.
+**Step 4 — Final Output**
+Two Excel files are automatically generated with conditional formatting, optimized column widths, and print-ready layouts delivered to F&B and Housekeeping at the start of the day.
 
-![Reporte de desayunos generado](assets/output_desayunos.jpeg)
+![Breakfast report](assets/output_desayunos.jpeg)
 
-![Reporte de bedding generado](assets/output_bedding.jpeg)
+![Bedding report](assets/output_bedding.jpeg)
 
 ---
 
-## 📊 Impacto Comercial
+## 📊 Commercial Impact
 
-| | Proceso Manual | Con Automatización |
+| | Manual Process | With Automation |
 |---|---|---|
-| **Tiempo** | 20-30 min de data entry + limpieza | ~3 minutos |
-| **Errores** | Propenso a omisiones fila por fila | Procesamiento automático |
-| **Output** | Excel sin formato, requiere maquetar | Listo para imprimir |
-| **Escalabilidad** | Se degrada con más huéspedes | Constante sin importar el volumen |
+| **Time** | 20–30 min of data entry + cleanup | ~3 minutes |
+| **Errors** | Prone to row-by-row omissions | Automatic processing |
+| **Output** | Unformatted Excel, requires manual layout | Print-ready |
+| **Scalability** | Degrades with more guests | Constant regardless of volume |
 
-El sistema está diseñado para adaptarse a cualquier hotel que opere con Cloudbeds, independientemente del volumen de reservas o la estructura de tarifas.
-
----
-
-## 🛠️ Tecnologías
-
-*   **Automatización del navegador:** Tampermonkey (userscript JavaScript)
-*   **Procesamiento de datos:** Python 3.12+
-*   **Generación de reportes:** openpyxl (formato condicional, anchos automáticos)
-*   **Distribución:** Script `.bat` para ejecución con un clic en Windows
+The system is designed to adapt to any hotel operating on Cloudbeds, regardless of reservation volume or rate structure.
 
 ---
 
-## 📬 Contacto
+## 🛠️ Technologies
 
-¿Tenés un flujo operativo que querés automatizar? Puedo desarrollar una solución similar para tu negocio.
+*   **Browser automation:** Tampermonkey (JavaScript userscript)
+*   **Data processing:** Python 3.12+
+*   **Report generation:** openpyxl (conditional formatting, automatic column widths)
+*   **Distribution:** `.bat` script for one-click execution on Windows
+
+---
+
+## 📬 Contact
+
+Do you have an operational workflow you want to automate? I can develop a similar solution for your business.
 
 *   **LinkedIn:** [Sebastián González](https://www.linkedin.com/in/sebasti%C3%A1n-gonz%C3%A1lez-571a18195/)
 *   **Email:** [sebag2298@gmail.com](mailto:sebag2298@gmail.com)
